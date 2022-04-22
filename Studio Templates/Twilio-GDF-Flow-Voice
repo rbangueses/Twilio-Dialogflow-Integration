@@ -1,0 +1,273 @@
+{
+  "description": "A New Flow",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "event": "incomingMessage"
+        },
+        {
+          "next": "CreateNewTranscript",
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingConversationMessage"
+        },
+        {
+          "event": "incomingRequest"
+        },
+        {
+          "event": "incomingParent"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 40,
+          "y": -260
+        }
+      }
+    },
+    {
+      "name": "SendToGDF",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "WriteToTranscript",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "ZSb525d5c8aa640715fb63dc9a2b5e0efa",
+        "environment_sid": "ZE5c157c402da6cac1dfe2d549f09d8bc5",
+        "offset": {
+          "x": 580,
+          "y": 740
+        },
+        "function_sid": "ZHdc319703c15387e3b8517da04baa1ca3",
+        "parameters": [
+          {
+            "value": "{{widgets.VoiceCapture.SpeechResult}}",
+            "key": "customerMessage"
+          },
+          {
+            "value": "{{trigger.call.CallSid}}",
+            "key": "sid"
+          }
+        ],
+        "url": "https://twilio-gdf-4546.twil.io/sendToGDF"
+      }
+    },
+    {
+      "name": "VoiceCapture",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "event": "keypress"
+        },
+        {
+          "next": "SendToGDF",
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Amy",
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 90,
+          "y": 460
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "",
+        "language": "en-GB",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "PlayGDFFulfillmentMessage",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "CheckAction",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Amy",
+        "offset": {
+          "x": 150,
+          "y": 1220
+        },
+        "loop": 1,
+        "say": "{{widgets.SendToGDF.parsed.fulfillmentText}}",
+        "language": "en-GB"
+      }
+    },
+    {
+      "name": "CheckAction",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "VoiceCapture",
+          "event": "noMatch"
+        },
+        {
+          "next": "send_to_flex_escalation",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to escalate",
+              "arguments": [
+                "{{widgets.SendToGDF.parsed.action}}"
+              ],
+              "type": "equal_to",
+              "value": "escalate"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.SendToGDF.parsed.action}}",
+        "offset": {
+          "x": -370,
+          "y": 860
+        }
+      }
+    },
+    {
+      "name": "WelcomeMessage",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "VoiceCapture",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Amy",
+        "offset": {
+          "x": 170,
+          "y": 210
+        },
+        "loop": 1,
+        "say": "Please tell me the reason for your call",
+        "language": "en-GB"
+      }
+    },
+    {
+      "name": "send_to_flex_escalation",
+      "type": "send-to-flex",
+      "transitions": [
+        {
+          "event": "callComplete"
+        },
+        {
+          "event": "failedToEnqueue"
+        },
+        {
+          "event": "callFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -560,
+          "y": 1220
+        },
+        "workflow": "WW0203e4845358c60e82b46813620a80f3",
+        "channel": "TCb953a1b14b3e14912584f02d13460894",
+        "attributes": "{ \"type\": \"inbound\", \"name\": \"{{trigger.call.From}}\", \"direction\": \"inbound\", \"sync_srv_sid\":\"IS277d1dc383ca53f48645f445a7f9401a\", \"transcript_sid\": \"{{widgets.CreateNewTranscript.body}}\" }"
+      }
+    },
+    {
+      "name": "CreateNewTranscript",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "WelcomeMessage",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "ZSb525d5c8aa640715fb63dc9a2b5e0efa",
+        "environment_sid": "ZE5c157c402da6cac1dfe2d549f09d8bc5",
+        "offset": {
+          "x": 170,
+          "y": -80
+        },
+        "function_sid": "ZH415a09ba591b5592a8f962ac405906a3",
+        "url": "https://twilio-gdf-4546.twil.io/createNewTranscript"
+      }
+    },
+    {
+      "name": "WriteToTranscript",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "PlayGDFFulfillmentMessage",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "ZSb525d5c8aa640715fb63dc9a2b5e0efa",
+        "environment_sid": "ZE5c157c402da6cac1dfe2d549f09d8bc5",
+        "offset": {
+          "x": 590,
+          "y": 990
+        },
+        "function_sid": "ZH4a65247270ff3e083d8e8b399c15087a",
+        "parameters": [
+          {
+            "value": "{{widgets.CreateNewTranscript.body}}",
+            "key": "transcript_sid"
+          },
+          {
+            "value": "Customer",
+            "key": "customer_name"
+          },
+          {
+            "value": "Virtual Assistant",
+            "key": "va_name"
+          },
+          {
+            "value": "{{widgets.VoiceCapture.SpeechResult}}",
+            "key": "customer_msg"
+          },
+          {
+            "value": "{{widgets.SendToGDF.parsed.fulfillmentText}}",
+            "key": "va_msg"
+          },
+          {
+            "value": "{{widgets.SendToGDF.parsed.parameters}}",
+            "key": "gdf_parameters"
+          },
+          {
+            "value": "{{widgets.SendToGDF.parsed.intent.displayName}}",
+            "key": "gdf_intent"
+          }
+        ],
+        "url": "https://twilio-gdf-4546.twil.io/addToTranscript"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}

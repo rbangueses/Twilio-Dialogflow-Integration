@@ -1,0 +1,297 @@
+{
+  "description": "A New Flow",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "next": "CreateNewTranscript_SMS",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingConversationMessage"
+        },
+        {
+          "event": "incomingRequest"
+        },
+        {
+          "event": "incomingParent"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -650,
+          "y": -990
+        }
+      }
+    },
+    {
+      "name": "SendToGDF_SMS",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "WriteToTranscript_SMS",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "ZSb525d5c8aa640715fb63dc9a2b5e0efa",
+        "environment_sid": "ZE5c157c402da6cac1dfe2d549f09d8bc5",
+        "offset": {
+          "x": -1260,
+          "y": -300
+        },
+        "function_sid": "ZHdc319703c15387e3b8517da04baa1ca3",
+        "parameters": [
+          {
+            "value": "{{flow.variables.customerMessage}}",
+            "key": "customerMessage"
+          },
+          {
+            "value": "{{trigger.message.MessageSid}}",
+            "key": "sid"
+          }
+        ],
+        "url": "https://twilio-gdf-4546.twil.io/sendToGDF"
+      }
+    },
+    {
+      "name": "SendAndWaitForReply",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "SMS_Variables2",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -2080,
+          "y": -270
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "{{widgets.SendToGDF_SMS.parsed.fulfillmentText}}",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "SMS_FirstCheckIntent",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "SendAndWaitForReply",
+          "event": "noMatch"
+        },
+        {
+          "next": "SendHandoverMessage",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to escalate",
+              "arguments": [
+                "{{widgets.SendToGDF_SMS.parsed.action}}"
+              ],
+              "type": "equal_to",
+              "value": "escalate"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.SendToGDF_SMS.parsed.action}}",
+        "offset": {
+          "x": -1460,
+          "y": 200
+        }
+      }
+    },
+    {
+      "name": "SMS_send_to_flex",
+      "type": "send-to-flex",
+      "transitions": [
+        {
+          "event": "callComplete"
+        },
+        {
+          "event": "failedToEnqueue"
+        },
+        {
+          "event": "callFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1350,
+          "y": 740
+        },
+        "workflow": "WW0203e4845358c60e82b46813620a80f3",
+        "channel": "TC4acc97e0451cc968911f6dd8ea5533dd",
+        "attributes": "{\"name\": \"{{trigger.message.ChannelAttributes.from}}\", \"channelType\": \"{{trigger.message.ChannelAttributes.channel_type}}\", \"channelSid\": \"{{trigger.message.ChannelSid}}\",  \"sync_srv_sid\":\"ISdd86aafea3437f161759743419847014\", \"transcript_sid\": \"{{widgets.CreateNewTranscript_SMS.body}}\" }"
+      }
+    },
+    {
+      "name": "SMS_Variables",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "SendToGDF_SMS",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "{{trigger.message.Body}}",
+            "key": "customerMessage"
+          }
+        ],
+        "offset": {
+          "x": -860,
+          "y": -560
+        }
+      }
+    },
+    {
+      "name": "SMS_Variables2",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "SendToGDF_SMS",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "{{widgets.SendAndWaitForReply.inbound.Body}}",
+            "key": "customerMessage"
+          }
+        ],
+        "offset": {
+          "x": -1340,
+          "y": -560
+        }
+      }
+    },
+    {
+      "name": "CreateNewTranscript_SMS",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "SMS_Variables",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "ZSb525d5c8aa640715fb63dc9a2b5e0efa",
+        "environment_sid": "ZE5c157c402da6cac1dfe2d549f09d8bc5",
+        "offset": {
+          "x": -630,
+          "y": -800
+        },
+        "function_sid": "ZH415a09ba591b5592a8f962ac405906a3",
+        "url": "https://twilio-gdf-4546.twil.io/createNewTranscript"
+      }
+    },
+    {
+      "name": "WriteToTranscript_SMS",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "SMS_FirstCheckIntent",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "ZSb525d5c8aa640715fb63dc9a2b5e0efa",
+        "environment_sid": "ZE5c157c402da6cac1dfe2d549f09d8bc5",
+        "offset": {
+          "x": -1280,
+          "y": -60
+        },
+        "function_sid": "ZH4a65247270ff3e083d8e8b399c15087a",
+        "parameters": [
+          {
+            "value": "{{widgets.CreateNewTranscript_SMS.body}}",
+            "key": "transcript_sid"
+          },
+          {
+            "value": "Customer",
+            "key": "customer_name"
+          },
+          {
+            "value": "Virtual Assistant",
+            "key": "va_name"
+          },
+          {
+            "value": "{{flow.variables.customerMessage}}",
+            "key": "customer_msg"
+          },
+          {
+            "value": "{{widgets.SendToGDF_SMS.parsed.fulfillmentText}}",
+            "key": "va_msg"
+          },
+          {
+            "value": "{{widgets.SendToGDF_SMS.parsed.parameters}}",
+            "key": "gdf_parameters"
+          },
+          {
+            "value": "{{widgets.SendToGDF_SMS.parsed.intent.displayName}}",
+            "key": "gdf_intent"
+          }
+        ],
+        "url": "https://twilio-gdf-4546.twil.io/addToTranscript"
+      }
+    },
+    {
+      "name": "SendHandoverMessage",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "SMS_send_to_flex",
+          "event": "sent"
+        },
+        {
+          "next": "SMS_send_to_flex",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1350,
+          "y": 480
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "{{widgets.SendToGDF_SMS.parsed.fulfillmentText}}"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}

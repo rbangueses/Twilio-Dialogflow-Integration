@@ -1,0 +1,1 @@
+export { LogoutView } from "./LogoutView";

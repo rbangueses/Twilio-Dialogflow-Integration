@@ -1,0 +1,1 @@
+export { LiveCommsIcon } from "./LiveCommIcon";

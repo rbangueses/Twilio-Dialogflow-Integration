@@ -1,0 +1,35 @@
+.TranscriptTable {
+  border-collapse: collapse;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.TranscriptTable th,
+.TranscriptTable td {
+    padding: 12px 15px;
+}
+
+.TranscriptTable tbody tr {
+  border-bottom: thin solid #dddddd;
+}
+
+.TranscriptTable tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+
+.SessionDetailsTable {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+.SessionDetailsHeaders {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+    width: 30%;
+    }
+.SessionDetailsValues {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+    }

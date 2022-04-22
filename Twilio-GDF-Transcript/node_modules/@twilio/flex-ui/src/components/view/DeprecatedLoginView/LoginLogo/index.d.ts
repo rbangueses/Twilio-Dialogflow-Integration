@@ -1,0 +1,1 @@
+export { LoginLogo } from "./LoginLogo";

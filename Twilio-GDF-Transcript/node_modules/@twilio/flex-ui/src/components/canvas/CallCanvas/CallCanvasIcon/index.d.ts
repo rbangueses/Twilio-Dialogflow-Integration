@@ -1,0 +1,1 @@
+export { CallCanvasIcon } from "./CallCanvasIcon";

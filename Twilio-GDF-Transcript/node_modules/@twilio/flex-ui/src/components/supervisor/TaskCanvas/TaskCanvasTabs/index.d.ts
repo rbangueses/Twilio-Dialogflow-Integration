@@ -1,0 +1,1 @@
+export { TaskCanvasTabs } from "./TaskCanvasTabs";

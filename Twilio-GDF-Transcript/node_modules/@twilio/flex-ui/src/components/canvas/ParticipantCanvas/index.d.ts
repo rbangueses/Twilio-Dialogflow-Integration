@@ -1,0 +1,1 @@
+export { ParticipantCanvas } from "./ParticipantCanvas";
