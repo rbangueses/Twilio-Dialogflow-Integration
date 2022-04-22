@@ -18,6 +18,6 @@ Let’s start by creating a Twilio Serverless function and setting up the enviro
   - Twilio-flex-token-validator
   - @google-cloud/dialogflow
 - click on environment variables and add the following:
-  - SYNC_SERVICE_SID: <your sync service SID starting with ISXXXXX>
-  - PROJECT_ID: <your dialogflow project ID>
+  - SYNC_SERVICE_SID: your sync service SID starting with ISXXXXX
+  - PROJECT_ID: your dialogflow project ID
 
