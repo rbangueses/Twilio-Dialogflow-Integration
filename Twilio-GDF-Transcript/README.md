@@ -24,6 +24,11 @@ Finally, install the [Flex Plugin extension](https://github.com/twilio-labs/plug
 ```bash
 twilio plugins:install @twilio-labs/plugin-flex
 ```
+## Test
+Run the plugin locally - 
+```bash twilio flex:plugins:start
+```
+
 
 ## Development
 
