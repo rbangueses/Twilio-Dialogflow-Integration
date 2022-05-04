@@ -1,7 +1,7 @@
 These files include the Twilio Functions necessary for this project.
 
 We will need 4 functions:
-- function that will create a transcript on a per call basis
+- a function that will create a transcript on a per call basis
 - a function that will add new conversations to the transcript
 - a function that will fetch the contents on the transcript
 - a function that will be used to invoke the Dialogflow API with the customer message
