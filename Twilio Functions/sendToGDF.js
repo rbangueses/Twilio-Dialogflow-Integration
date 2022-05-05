@@ -1,16 +1,17 @@
+const Dialogflow = require('@google-cloud/dialogflow');
+
 /* Twilio function that sends a payload to dialogflow using service account credentials
 ** Should be a Protected function
 ** Uses ENVIRONMENT VARIABLES - PROJECT_ID
 */
 async function sendToGDF(projectId, event) {
-    const dialogflow = require('@google-cloud/dialogflow');
     // A unique identifier for the given session - we use the event sid
     const sessionId = event.sid;
     // as per google json
-    let privateKey = '<YOUR private_key';
-    let clientEmail = '<YOUR client_email>';
+    const privateKey = '<YOUR private_key';
+    const clientEmail = '<YOUR client_email>';
 
-    let config = {
+    const config = {
       credentials: {
         private_key: privateKey,
         client_email: clientEmail
@@ -18,7 +19,7 @@ async function sendToGDF(projectId, event) {
     }
 
     // Creating a new session
-    const sessionClient = new dialogflow.SessionsClient(config);
+    const sessionClient = new Dialogflow.SessionsClient(config);
     const sessionPath = sessionClient.projectAgentSessionPath(
       projectId,
       sessionId
